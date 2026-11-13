@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Cloudflare D1 (SQLite). The real connection comes from the D1 binding at runtime;
+// schema changes are applied with wrangler migrations (see README).
+datasource db {
+  provider = "sqlite"
+  url      = "file:./unused.db"
+}
+
+model FlashcardSet {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  cards       Flashcard[]
+}
+
+model Flashcard {
+  id       String       @id @default(cuid())
+  setId    String
+  set      FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  word     String
+  imageKey String
+  position Int
+
+  @@index([setId, position])
+}
